@@ -1,2 +1,2 @@
 # QuaintRSSFeedReader
-An RSS Feed Reader in you Terminal
+An RSS Feed Reader in your Terminal
