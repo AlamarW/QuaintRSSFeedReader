@@ -12,22 +12,6 @@ DIRNAME = path.dirname(__file__)
 
 DB = TinyDB(path.join(DIRNAME, 'profiles.json'))
 USER = Query()
-
-
-
-
-'''
-TO DO (Prioritized)
-  Functionality
-- maximize terminal on startup???
-- if user says they have a profile and enter something that isn't in the profile, the program closes (loop it around)
-- clear console based on OS instead of Linux
-
-  Aesthetic/organizational
-- Organize Functions (good god)
-- Document Code (Fuck) (Include typing as much as possible)
-'''
-
   
   
 def read_all_feeds(feeds: list):
