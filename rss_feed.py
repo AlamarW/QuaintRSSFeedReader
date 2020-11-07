@@ -12,13 +12,14 @@ DIRNAME = path.dirname(__file__)
 
 DB = TinyDB(path.join(DIRNAME, 'profiles.json'))
 USER = Query()
-  
+
+clear = lambda: system('cls' if name=='nt' else 'clear')
   
 def read_all_feeds(feeds: list):
   def read_single_feed(feed: str):
     results = return_results(get_rss_feed(feed))
     return results
-  system('clear')
+  clear()
   print('Reading Feeds \n')
   news_per_feed = input("How many news items per entry do you want? (Default 5) \n")
   try:
@@ -26,7 +27,7 @@ def read_all_feeds(feeds: list):
   except:
     news_per_feed = 5
   
-  system('clear')
+  clear()
   print('Loading feeds \n')
   for feed in feeds:
     for i, news in enumerate(read_single_feed(feed)):
@@ -38,7 +39,7 @@ def read_all_feeds(feeds: list):
 
 
 def add_feeds(profile_name: str):
-  system('clear')
+  clear()
   print("Let's add some feeds \n")
   new_feeds_string = input("What RSS feeds would you like to add to your account? Please separate feeds with a comma ', ', or press n to skip: \n")
   print('\n')
@@ -76,7 +77,7 @@ def create_account(profile_name = ''):
     create_account()
   
   elif DB.search(USER.name.matches(profile_name, flags=re.IGNORECASE)):
-      system('clear')
+      clear()
       print(f'{profile_name} is already taken!')
       create_account()
   else:
@@ -89,7 +90,7 @@ def login(profile_name: str):
   
   if len(search_results):
     #stuff will go here continuing the main loop (basically)
-    system('clear')
+    clear()
     print(f'Logged in! Welcome, {profile_name}\n')
     feeds = DB.search(USER.name == profile_name)[0]["feeds"]
     print(f"You have {len(feeds)} feeds:\n")
@@ -107,7 +108,7 @@ def login(profile_name: str):
 
 def start_login():
 
-  system('clear')
+  clear()
   has_account = input('Do you have a profile? Y/N\n')
 
   if has_account.lower() == 'y':
