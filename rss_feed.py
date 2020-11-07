@@ -14,7 +14,17 @@ DB = TinyDB(path.join(DIRNAME, 'profiles.json'))
 USER = Query()
 
 clear = lambda: system('cls' if name=='nt' else 'clear')
+
+def get_rss_feed(feed: str):
   
+  #Gets Response From RSS feed, seperated from return results for side-effect reasons
+  req = Request(feed, headers={'USER-Agent': 'Mozilla/5.0'})
+  response = urlopen(req)
+  xml_page = response.read()
+  response.close()
+  return xml_page
+
+
 def read_all_feeds(feeds: list):
   def read_single_feed(feed: str):
     results = return_results(get_rss_feed(feed))
@@ -36,6 +46,44 @@ def read_all_feeds(feeds: list):
       else:
         print(news)
   print("Thank you for using Quaint RSS Feed Reader")
+
+
+def return_results(xml_page):
+  def item_message_format(item, channel_title:str):
+    #gets item info and formats it
+    article_title = item.title.text
+    description = item.description.text[0:100]
+    link = item.link.text
+    publication_date = item.pubDate.text
+    message = f"\n{channel_title} \n{article_title} \n{description}... \n{link} \n{publication_date} \n" 
+
+    return message
+
+  results = []
+  soup_page = soup(xml_page, "xml")
+  news_list = soup_page.findAll("item")
+  channel_title = soup_page.find('channel').title.text
+
+  for getitem in news_list:
+    results.append(item_message_format(getitem, channel_title))
+
+  return results
+
+
+def create_account(profile_name = ''):
+  USER = Query()
+  profile_name = input("Choose a profile Name (Please don't include spaces) \n")
+  
+  if " " in profile_name:
+    create_account()
+  
+  elif DB.search(USER.name.matches(profile_name, flags=re.IGNORECASE)):
+      clear()
+      print(f'{profile_name} is already taken!')
+      create_account()
+  else:
+    DB.insert({'name': profile_name, 'feeds': []})
+    add_feeds(profile_name)
 
 
 def add_feeds(profile_name: str):
@@ -67,22 +115,6 @@ def add_feeds(profile_name: str):
     else:
       user_feeds.append(i)
   DB.update({"feeds": user_feeds}, USER.name == profile_name)
-
-
-def create_account(profile_name = ''):
-  USER = Query()
-  profile_name = input("Choose a profile Name (Please don't include spaces) \n")
-  
-  if " " in profile_name:
-    create_account()
-  
-  elif DB.search(USER.name.matches(profile_name, flags=re.IGNORECASE)):
-      clear()
-      print(f'{profile_name} is already taken!')
-      create_account()
-  else:
-    DB.insert({'name': profile_name, 'feeds': []})
-    add_feeds(profile_name)
 
 
 def login(profile_name: str):
@@ -122,38 +154,6 @@ def start_login():
   else:
     print('invalid input')
     start_login()
-
-
-def get_rss_feed(feed: str):
-  
-  #Gets Response From RSS feed, seperated from return results for side-effect reasons
-  req = Request(feed, headers={'USER-Agent': 'Mozilla/5.0'})
-  response = urlopen(req)
-  xml_page = response.read()
-  response.close()
-  return xml_page
-
-
-def return_results(xml_page):
-  def item_message_format(item, channel_title:str):
-    #gets item info and formats it
-    article_title = item.title.text
-    description = item.description.text[0:100]
-    link = item.link.text
-    publication_date = item.pubDate.text
-    message = f"\n{channel_title} \n{article_title} \n{description}... \n{link} \n{publication_date} \n" 
-
-    return message
-
-  results = []
-  soup_page = soup(xml_page, "xml")
-  news_list = soup_page.findAll("item")
-  channel_title = soup_page.find('channel').title.text
-
-  for getitem in news_list:
-    results.append(item_message_format(getitem, channel_title))
-
-  return results
 
 
 if __name__ == "__main__":
