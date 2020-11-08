@@ -1,3 +1,12 @@
+"""Quaint RSS Feed Reader
+
+This simple tool lets the user read RSS feeds of their choice in the
+terminal. There are profiles within this program the .JSON starts empty
+
+This tool requires TinyDB and BeautifulSoup4 to be installed within the
+python environment you're running this in.
+"""
+
 from bs4 import BeautifulSoup as soup
 from urllib.request import urlopen, Request
 from tinydb import TinyDB, Query
@@ -15,9 +24,21 @@ USER = Query()
 
 clear = lambda: system('cls' if name=='nt' else 'clear')
 
-def get_rss_feed(feed: str):
+def get_rss_feed(feed: str) -> bytes:
+
+  """Gets individual RSS Feed Response
+
+    Parameters
+    ----------
+    feed : str
+      A valid RSS feed XML site
+
+    Returns
+    -------
+      xml_page
+          Site data returned as bytes by urllib
+    """
   
-  #Gets Response From RSS feed, seperated from return results for side-effect reasons
   req = Request(feed, headers={'USER-Agent': 'Mozilla/5.0'})
   response = urlopen(req)
   xml_page = response.read()
@@ -26,7 +47,31 @@ def get_rss_feed(feed: str):
 
 
 def read_all_feeds(feeds: list):
-  def read_single_feed(feed: str):
+  """ Iterates over all user feeds an runs read_single_feed on them
+
+  Parameters
+  ----------
+  feeds : list
+    A list of valid RSS feed XML sites
+
+  Returns
+  -------
+    prints x stories to console per feed
+  """
+    
+  def read_single_feed(feed: str) -> list:
+    """Gets individual RSS Feed Response
+
+    Parameters
+    ----------
+    feed : str
+      A valid RSS feed XML site
+
+    Returns
+    -------
+      list
+          List of strings containing RSS Feed News/stories
+    """
     results = return_results(get_rss_feed(feed))
     return results
   clear()
@@ -48,9 +93,35 @@ def read_all_feeds(feeds: list):
   print("Thank you for using Quaint RSS Feed Reader")
 
 
-def return_results(xml_page):
-  def item_message_format(item, channel_title:str):
-    #gets item info and formats it
+def return_results(xml_page: bytes) -> list:
+  """Creates list of data from RSS Feed
+
+    Parameters
+    ----------
+    xml_page : bytes
+      RSS Feed Site data returned as bytes
+
+    Returns
+    -------
+      list
+          list of formatted data from each news items in a RSS Feed
+    """
+  
+  def item_message_format(item: class, channel_title: str) -> str:
+    """Gets news item from RSS feed and formats it
+
+    Parameters
+    ----------
+    item : 
+      A bs4.element.Tag of individual news items in XML
+    channel_title : str
+
+    Returns
+    -------
+      str
+          Formatted string from a sigle news item in a feed
+    """
+    
     article_title = item.title.text
     description = item.description.text[0:100]
     link = item.link.text
@@ -65,12 +136,26 @@ def return_results(xml_page):
   channel_title = soup_page.find('channel').title.text
 
   for getitem in news_list:
+    print(type(getitem))
     results.append(item_message_format(getitem, channel_title))
 
   return results
 
 
 def create_account(profile_name = ''):
+  """Creates user profile
+
+    Parameters
+    ----------
+    profile_name : ""
+      this value is taken from else where and is only '' to make it work...
+      I need something better though
+
+    Returns
+    -------
+      Adds a user entry in profiles.json
+    """
+
   USER = Query()
   profile_name = input("Choose a profile Name (Please don't include spaces) \n")
   
@@ -87,6 +172,18 @@ def create_account(profile_name = ''):
 
 
 def add_feeds(profile_name: str):
+  """Adds user inputted feeds to profiles.json
+
+    Parameters
+    ----------
+    profile_name : str
+      the name of the users profile
+
+    Returns
+    -------
+      Updates user profile with inputted feeds
+    """
+
   clear()
   print("Let's add some feeds \n")
   new_feeds_string = input("What RSS feeds would you like to add to your account? Please separate feeds with a comma ', ', or press n to skip: \n")
@@ -118,10 +215,21 @@ def add_feeds(profile_name: str):
 
 
 def login(profile_name: str):
+  """Welcomes user and diverts user to specific functions (could be renamed)
+
+    Parameters
+    ----------
+    profile_name: str
+      the name of the users profile
+
+    Returns
+    -------
+    N/A
+    """
+
   search_results = DB.search(USER.name == profile_name)
   
   if len(search_results):
-    #stuff will go here continuing the main loop (basically)
     clear()
     print(f'Logged in! Welcome, {profile_name}\n')
     feeds = DB.search(USER.name == profile_name)[0]["feeds"]
@@ -139,6 +247,16 @@ def login(profile_name: str):
 
 
 def start_login():
+  """Checks if user has account after user input
+
+  Parameters
+  ----------
+  N/A
+
+  Returns
+  -------
+  N/A
+  """
 
   clear()
   has_account = input('Do you have a profile? Y/N\n')
