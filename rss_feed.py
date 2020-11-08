@@ -74,7 +74,7 @@ def read_all_feeds(feeds: list):
     """
     results = return_results(get_rss_feed(feed))
     return results
-    
+
   clear()
   print('Reading Feeds \n')
   news_per_feed = input("How many news items per entry do you want? (Default 5) \n")
@@ -108,7 +108,7 @@ def return_results(xml_page: bytes) -> list:
           list of formatted data from each news items in a RSS Feed
     """
   
-  def item_message_format(item: class, channel_title: str) -> str:
+  def item_message_format(item, channel_title: str) -> str:
     """Gets news item from RSS feed and formats it
 
     Parameters
